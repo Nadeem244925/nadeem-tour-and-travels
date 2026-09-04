@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { isDbUnavailable } from "@/lib/db-unavailable";
 import { clearSessionCookie, setSessionCookie } from "@/lib/auth";
 
 export type LeadInput = {
@@ -19,13 +20,6 @@ export type LeadInput = {
 const clean = (v: FormDataEntryValue | null) =>
   typeof v === "string" ? v.trim() : "";
 
-/** True when the database itself is unreachable (vs. a validation bug). */
-function isDbUnavailable(e: unknown): boolean {
-  if (!(e instanceof Error)) return false;
-  return /P10\d\d|P2024|can'?t reach|unable to open|failed to open|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|connection closed|socket hang up/i.test(
-    e.message
-  );
-}
 
 /** Generate the next lead number, e.g. NT-10001. */
 async function nextLeadNo(): Promise<string> {
