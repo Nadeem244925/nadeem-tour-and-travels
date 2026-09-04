@@ -1,7 +1,9 @@
 // Nadeem Tour & Travels — Prisma schema
-// Dev uses SQLite (file:./dev.db). For production, switch provider to "postgresql"
-// and point DATABASE_URL at a managed Postgres — no other changes needed (no
-// database-specific types are used on purpose).
+// Production runs PostgreSQL: point DATABASE_URL at a managed Postgres
+// (Neon/Supabase) and create the tables with `prisma db push`, then `db seed`.
+// The schema deliberately avoids DB-specific types, so it can still run on
+// SQLite in local dev by temporarily setting provider below to "sqlite" with
+// DATABASE_URL="file:./dev.db".
 
 generator client {
   provider      = "prisma-client-js"
@@ -10,7 +12,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
