@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/*  Nadeem Tour & Travels — design tokens                              */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-navy-950: #060d1a;
+  --color-navy-900: #0a1526;
+  --color-navy-850: #0d1c31;
+  --color-navy-800: #11233c;
+  --color-navy-700: #19304f;
+
+  --color-gold-100: #f8efd8;
+  --color-gold-200: #f0e0b0;
+  --color-gold-300: #e6cf8c;
+  --color-gold-400: #d9ba68;
+  --color-gold-500: #c6a24f;
+  --color-gold-600: #a88638;
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), ui-serif, Georgia, serif;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-navy-950 text-slate-200 font-sans antialiased;
+  background-image:
+    radial-gradient(1100px 500px at 85% -5%, rgba(198, 162, 79, 0.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 15%, rgba(25, 48, 79, 0.55), transparent 60%);
+}
+
+::selection {
+  background: rgba(217, 186, 104, 0.35);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0a1526;
+}
+::-webkit-scrollbar-thumb {
+  background: #1d3350;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c6a24f;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Reusable components                                                */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-gold-400;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply block h-px w-8 bg-gradient-to-r from-transparent to-gold-400/80;
+  }
+
+  .h-display {
+    @apply font-display text-4xl leading-[1.08] font-semibold text-white sm:text-5xl;
+  }
+  .h-display-lg {
+    @apply font-display text-4xl leading-[1.05] font-semibold text-white sm:text-6xl lg:text-7xl;
+  }
+
+  .btn-gold,
+  .btn-ghost,
+  .btn-whatsapp {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold tracking-wide transition-all duration-300 cursor-pointer select-none;
+  }
+  .btn-gold {
+    @apply text-navy-950;
+    background-image: linear-gradient(135deg, #ecd493 0%, #d9ba68 45%, #c6a24f 100%);
+    box-shadow: 0 10px 30px -10px rgba(217, 186, 104, 0.55);
+  }
+  .btn-gold:hover {
+    box-shadow: 0 14px 36px -8px rgba(217, 186, 104, 0.7);
+    filter: brightness(1.06);
+  }
+  .btn-ghost {
+    @apply border border-white/20 bg-white/5 text-white backdrop-blur-sm;
+  }
+  .btn-ghost:hover {
+    @apply border-gold-400/60 text-gold-200;
+  }
+  .btn-whatsapp {
+    @apply text-white;
+    background-image: linear-gradient(135deg, #2fdd6f, #1faa55);
+    box-shadow: 0 10px 28px -10px rgba(37, 211, 102, 0.5);
+  }
+
+  .card-glass {
+    @apply rounded-2xl border border-white/10 bg-white/[0.045] backdrop-blur-sm;
+  }
+  .card-glass-hover {
+    @apply rounded-2xl border border-white/10 bg-white/[0.045] backdrop-blur-sm transition-all duration-300;
+  }
+  .card-glass-hover:hover {
+    @apply -translate-y-1 border-gold-400/35 bg-white/[0.07];
+    box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.7);
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[11px] font-semibold tracking-wide text-slate-300;
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition-all duration-200;
+  }
+  .input-base:focus {
+    @apply border-gold-400/70 bg-white/[0.09];
+    box-shadow: 0 0 0 4px rgba(217, 186, 104, 0.12);
+  }
+  .field-label {
+    @apply mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400;
+  }
+
+  .gold-text {
+    background-image: linear-gradient(120deg, #f0e0b0, #d9ba68 45%, #c6a24f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .gold-divider {
+    @apply mx-auto mt-4 h-px w-20 bg-gradient-to-r from-transparent via-gold-400 to-transparent;
+  }
+
+  .glass-form {
+    @apply rounded-3xl border border-white/10 bg-navy-900/80 p-6 shadow-2xl backdrop-blur-md sm:p-8;
+  }
+
+  .stat-num {
+    @apply font-display text-4xl font-bold sm:text-5xl;
+  }
+}

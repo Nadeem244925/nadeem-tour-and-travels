@@ -1,0 +1,267 @@
+// Nadeem Tour & Travels — Prisma schema
+// Dev uses SQLite (file:./dev.db). For production, switch provider to "postgresql"
+// and point DATABASE_URL at a managed Postgres — no other changes needed (no
+// database-specific types are used on purpose).
+
+generator client {
+  provider      = "prisma-client-js"
+  // Linux engines for Vercel (debian) and Netlify's Lambda runtime (rhel), plus local dev.
+  binaryTargets = ["native", "debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Users & staff (admins and internal team)
+// ---------------------------------------------------------------------------
+model User {
+  id           String      @id @default(cuid())
+  name         String
+  email        String      @unique
+  passwordHash String
+  role         String      @default("STAFF") // ADMIN | STAFF
+  isActive     Boolean     @default(true)
+  leads        Lead[]      @relation("LeadAssignee")
+  notes        AdminNote[]
+  quotations   Quotation[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Customers
+// ---------------------------------------------------------------------------
+model Customer {
+  id           String            @id @default(cuid())
+  name         String
+  mobile       String?
+  email        String?
+  address      String?
+  notes        String?
+  leads        Lead[]
+  applications VisaApplication[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Leads — the single unified enquiry record.
+// service holds "USA Visa" | "Schengen Visa" | "Dubai Visa" | "Flight Booking"
+// | "Hotel Booking" | "Holiday Package" | "General Enquiry" | ...
+// ---------------------------------------------------------------------------
+model Lead {
+  id           String           @id @default(cuid())
+  leadNo       String           @unique // NT-10001 …
+  name         String
+  mobile       String?
+  email        String?
+  service      String           // USA Visa, Schengen Visa, Flight Booking …
+  destination  String?
+  travelDate   DateTime?
+  message      String?
+  status       String           @default("New") // New → Contacted → Documents Pending → Processing → Submitted → Completed → Closed
+  source       String           @default("Website")
+  assignedToId String?
+  assignedTo   User?            @relation("LeadAssignee", fields: [assignedToId], references: [id])
+  customerId   String?
+  customer     Customer?        @relation(fields: [customerId], references: [id])
+  application  VisaApplication?
+  quotations   Quotation[]
+  invoices     Invoice[]
+  notes        AdminNote[]
+  appointments Appointment[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Visa services (USA, Schengen, Dubai, Saudi, UK, Canada, Turkey, Other)
+// ---------------------------------------------------------------------------
+model VisaService {
+  id            String            @id @default(cuid())
+  slug          String            @unique
+  category      String            // USA | SCHENGEN | DUBAI | SAUDI | UK | CANADA | TURKEY | OTHER
+  name          String            // "USA B1/B2 Visitor Visa Assistance"
+  shortName     String            // "USA Visa"
+  tagline       String?
+  description   String?           // body text (paragraphs separated by blank lines)
+  features      String?           // newline-separated list of service features
+  options       String?           // newline-separated option cards (e.g. "14 Days Tourist Visa")
+  faq           String?           // optional FAQ, "Q: ...\nA: ...\n\n" blocks
+  image         String?
+  order         Int               @default(0)
+  isActive      Boolean           @default(true)
+  applications  VisaApplication[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Visa applications (created from leads)
+// ---------------------------------------------------------------------------
+model VisaApplication {
+  id            String          @id @default(cuid())
+  applicationNo String          @unique // NT-USA-10245 …
+  leadId        String          @unique
+  lead          Lead            @relation(fields: [leadId], references: [id])
+  customerId    String?
+  customer      Customer?       @relation(fields: [customerId], references: [id])
+  visaServiceId String?
+  visaService   VisaService?    @relation(fields: [visaServiceId], references: [id])
+  applicantName String
+  passportNo    String?
+  status        String          @default("Enquiry") // Enquiry → Consultation → Documents Pending → Application Preparation → Submitted → Completed
+  documents     VisaDocument[]
+  appointments  Appointment[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+// Sensitive documents live in private storage; only a storage key is kept here.
+model VisaDocument {
+  id            String          @id @default(cuid())
+  applicationId String
+  application   VisaApplication @relation(fields: [applicationId], references: [id])
+  label         String          // Passport, Photograph, Bank Statement, ITR …
+  fileName      String
+  storageKey    String
+  uploadedById  String?
+  createdAt     DateTime        @default(now())
+}
+
+model Appointment {
+  id             String          @id @default(cuid())
+  applicationId  String?
+  application    VisaApplication? @relation(fields: [applicationId], references: [id])
+  leadId         String?
+  lead           Lead?           @relation(fields: [leadId], references: [id])
+  kind           String          // VISA_APPOINTMENT | EARLIER_APPOINTMENT_REQUEST | CONSULTATION
+  preferredDate  DateTime?
+  location       String?
+  notes          String?
+  status         String          @default("Requested")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Destinations & holiday packages
+// ---------------------------------------------------------------------------
+model Destination {
+  id            String           @id @default(cuid())
+  slug          String           @unique
+  name          String           // "Dubai", "Switzerland" …
+  country       String?
+  description   String?
+  image         String?
+  order         Int              @default(0)
+  isActive      Boolean          @default(true)
+  packages      HolidayPackage[]
+  createdAt     DateTime         @default(now())
+}
+
+model HolidayPackage {
+  id            String      @id @default(cuid())
+  slug          String      @unique
+  name          String      // "Dubai Classic", "Turkey Delight" …
+  destinationId String?
+  destination   Destination? @relation(fields: [destinationId], references: [id])
+  durationLabel String?     // "3N / 4D"
+  priceFrom     String?     // "₹45,999" display label
+  includes      String?     // newline-separated: Hotel + Transfers + Sightseeing
+  image         String?
+  order         Int         @default(0)
+  popular       Boolean     @default(false)
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Quotations, invoices, payments
+// ---------------------------------------------------------------------------
+model Quotation {
+  id          String           @id @default(cuid())
+  quotationNo String           @unique
+  leadId      String?
+  lead        Lead?            @relation(fields: [leadId], references: [id])
+  customerId  String?
+  issuedById  String?
+  issuedBy    User?            @relation(fields: [issuedById], references: [id])
+  validUntil  DateTime?
+  total       String?
+  status      String           @default("Draft") // Draft → Sent → Accepted → Rejected
+  items       QuotationItem[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model QuotationItem {
+  id          String    @id @default(cuid())
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id])
+  description String
+  qty         Int       @default(1)
+  unitPrice   String?
+  amount      String?
+  createdAt   DateTime  @default(now())
+}
+
+model Invoice {
+  id         String   @id @default(cuid())
+  invoiceNo  String   @unique
+  quotationId String?
+  leadId     String?
+  lead       Lead?    @relation(fields: [leadId], references: [id])
+  customerId String?
+  total      String?
+  status     String   @default("Unpaid") // Unpaid → Paid → Partially Paid → Cancelled
+  issuedAt   DateTime @default(now())
+  payments   Payment[]
+  createdAt  DateTime @default(now())
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+  leadId    String?
+  amount    String?
+  method    String?  // UPI, Bank Transfer, Cash, Card …
+  txnRef    String?
+  status    String   @default("Received")
+  paidAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Internal notes + website content/settings
+// ---------------------------------------------------------------------------
+model AdminNote {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  mobile    String?
+  email     String?
+  service   String?
+  message   String
+  status    String   @default("New")
+  createdAt DateTime @default(now())
+}
+
+model WebsiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

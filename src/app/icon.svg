@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="navy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10233f"/>
+      <stop offset="1" stop-color="#081224"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0e0b0"/>
+      <stop offset="0.5" stop-color="#d9ba68"/>
+      <stop offset="1" stop-color="#b8933f"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="116" height="116" rx="26" fill="url(#navy)" stroke="#c6a24f" stroke-opacity="0.45" stroke-width="1.5"/>
+  <circle cx="60" cy="60" r="46" fill="none" stroke="url(#gold)" stroke-width="4"/>
+  <circle cx="60" cy="60" r="37" fill="none" stroke="#d9ba68" stroke-width="1.1" opacity="0.55"/>
+  <ellipse cx="60" cy="60" rx="5" ry="29" fill="none" stroke="url(#gold)" stroke-width="1.6" opacity="0.65"/>
+  <ellipse cx="60" cy="60" rx="24.5" ry="3.2" fill="none" stroke="url(#gold)" stroke-width="1.6" opacity="0.55"/>
+  <g transform="translate(74 45) rotate(52)" fill="url(#gold)">
+    <path d="M0 -11 L4.6 0.9 L15 4.6 L6.6 7.9 L4.4 13.4 L1.9 8.5 L0 9.8 L-1.9 8.5 L-4.4 13.4 L-6.6 7.9 L-15 4.6 L-4.6 0.9 Z"/>
+  </g>
+  <circle cx="28" cy="83" r="2.8" fill="#e6cf8c"/>
+  <circle cx="90" cy="75" r="1.9" fill="#e6cf8c" opacity="0.75"/>
+</svg>

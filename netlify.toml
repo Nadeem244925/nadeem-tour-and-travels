@@ -1,0 +1,17 @@
+# Netlify configuration for Nadeem Tour & Travels (Next.js)
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# The Next.js runtime is applied automatically for Next.js projects.
+# If a deployment ever falls back to plain static hosting (breaking /admin and
+# server actions), uncomment the plugin pin below and redeploy:
+#
+# [[plugins]]
+#   package = "@netlify/plugin-nextjs"
+#   [plugins.inputs]
+#     # 'publish' must stay ".next" when this plugin is active.
