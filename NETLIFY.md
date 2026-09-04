@@ -164,6 +164,7 @@ records Netlify shows). HTTPS certificate is issued automatically.
 |---|---|
 | Site deploys but `/admin` shows "404" or plain HTML | The build published static output instead of the Next runtime. Ensure publish dir is `.next`; if it still falls back, uncomment the `@netlify/plugin-nextjs` plugin in `netlify.toml` and redeploy. |
 | Build fails `Can't reach database server` | `DATABASE_URL` not set or misspelled in Netlify env vars; database not created yet (Part 2). |
+| Build fails `npm run build` exit 254/2, log shows `Environment variable not found: DATABASE_URL` | Prisma crashes page pre-rendering when no database is configured. Fixed in `src/lib/site-data.ts` (missing-DB detection now covers the no-`DATABASE_URL` case). Pull the fix, then redeploy — no env vars needed for Option B. |
 | Build fails `Query engine ... could not be found` | Confirm `rhel-openssl-3.0.x` is in `binaryTargets`, run `npx prisma generate`, commit, redeploy. |
 | Live site shows no content | `prisma db push` + `db seed` were not run against the Neon URL (Part 4). |
 | Admin login says invalid credentials | Seed didn't reach Postgres, or password was changed. Re-run `npx prisma db seed` with `DATABASE_URL` set. |

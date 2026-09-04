@@ -20,9 +20,12 @@ export type PackageWithDestination = HolidayPackage & { destination: Destination
 function isDbUnavailable(e: unknown): boolean {
   if (!(e instanceof Error)) return false;
   const msg = e.message;
-  // Prisma connection/query-engine errors: P1000–P1017, P2024, and low-level
-  // socket errors. Anything else (validation etc.) should keep failing loudly.
-  return /P10\d\d|P2024|can'?t reach|unable to open|failed to open|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|connection closed|socket hang up/i.test(
+  // Treat every DB-unavailable shape as fallback-worthy:
+  //  - Missing/invalid DATABASE_URL (PrismaClientInitializationError, P1012)
+  //  - Connection/query-engine failures (P1000–P1017, P2024)
+  //  - Low-level socket/network errors
+  // Anything else (validation etc.) should keep failing loudly.
+  return /PrismaClientInitializationError|environment variable not found|did not initialize yet|query engine library|P10\d\d|P2024|can'?t reach|unable to open|failed to open|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|connection closed|socket hang up/i.test(
     msg
   );
 }
